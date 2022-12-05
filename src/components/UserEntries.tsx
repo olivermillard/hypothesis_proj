@@ -60,31 +60,33 @@ const UserEntries = (props: UserEntriesProps) => {
      */
     useEffect(() => {
         if(userData === null){ 
-            console.info('getting user data');
-            // fetch the user data from the source
             const getUsers = async () => { 
                 await fetchUsers(DATA_PATH)
                     .then(result => { 
                         setUserData(result);
-                        console.info('set user data');
-                        if(currEntries === null) {
-                            setCurrEntries(result); 
-                            console.info('set current entries');
-                        }
                     })
-                    .catch(
-                        err => {
-                            console.error(err);
-                            // set the user data and current entries to empty array so that 
-                            // users are informed that no data was found instead of a hanging 'Collecting Data'
-                            setUserData([]);
-                            setCurrEntries([]);
-                        }
-                    );
+                    .catch(err => {
+                        console.error(err);
+                        // set the user data and current entries to empty array so that 
+                        // users are informed that no users were found instead of a hanging 'Collecting Data'
+                        setUserData([]);
+                        setCurrEntries([]);
+                    });
             };
+
             getUsers(); 
         }
     }, []);
+
+    /* **************************************************************************
+     * useEffect                                                           */ /**
+     *
+     * Update the current entries after UserData has been updated to avoid filtering
+     * issues otherwise filtering issues.
+     */
+    useEffect(() => { 
+        props.nameQuery.length > 1 ? filterEntries(props.nameQuery) : setCurrEntries(userData);
+    }, [ userData ]);
 
     /* **************************************************************************
      * useEffect                                                           */ /**
@@ -94,13 +96,9 @@ const UserEntries = (props: UserEntriesProps) => {
      */
     useEffect(() => {
         // if the user has inputted a character beyond the '@' sign, filter the data
-        if(props.nameQuery.length > 1) {
-            setCurrEntries(filterUsers(props.nameQuery));
-        }
         // otherwise just set it to all user data (unfiltered)
-        else {
-            setCurrEntries(userData);
-        }
+        const shouldFilterEntries = props.nameQuery.length > 1;
+        shouldFilterEntries ? filterEntries(props.nameQuery) : setCurrEntries(userData);
     }, [ props.nameQuery ]);
 
     /* **************************************************************************
@@ -112,25 +110,23 @@ const UserEntries = (props: UserEntriesProps) => {
      * @returns the sorted data from the fetch
      */
     const fetchUsers = async (dataPath: string): Promise<UserDataItem[]> => {
-        const response = await fetch(dataPath);
-        const userData = await response.json();
-        
+        const userData = await fetch(dataPath)
+            .then(res => res.json());     
         const sortedData = userData.sort((a: UserDataItem, b: UserDataItem) => a.name > b.name ? 1 : -1);
         
         return sortedData;
     };
 
     /* **************************************************************************
-     * filterUsers                                                         */ /**
+     * filterEntries                                                       */ /**
      *
-     * Filters out users who's name or username do not match the search query. 
+     * Filters out users who's name or username do not match the search query and
+     * sets the current entries state variable when ready
      * 
      * @input nameQuery - the relevant substring from the user's input, i.e. 
      *                    the word that begins with '@'
-     * 
-     * @returns the remaining users after filtering 
      */
-    const filterUsers = (nameQuery: string): UserDataItem[]  => {
+    const filterEntries = (nameQuery: string) => {
         const filteredEntries = userData?.filter((entry: UserDataItem) => {
             // remove the '@' from the beginning of the search and make text lower case
             const cleanedSearchInput = nameQuery.slice(1).toLowerCase();
@@ -140,14 +136,14 @@ const UserEntries = (props: UserEntriesProps) => {
             
             // additionally, remove spaces in the name since spaces cannot be inputed with the '@' method
             const cleanedName = entry.name.toLowerCase().replaceAll(' ', '');
-            
+
             // check if the user's name and/or their username matches the search query
             const userMatchesQuery = (cleanedName.includes(cleanedSearchInput) || cleanedUsername.includes(cleanedSearchInput));
-
+            
             return userMatchesQuery;
         });
-        
-        return filteredEntries ?? [];
+
+        setCurrEntries(filteredEntries ?? []);
     };
 
     // check if the currEntries have been set and whether there are any found that match the name query
@@ -160,7 +156,7 @@ const UserEntries = (props: UserEntriesProps) => {
         <div
             className='userEntriesWrapper'
             style={{visibility: props.nameQuery ? 'visible' : 'hidden' }}
-            id='userEntriesId'
+            id='userEntriesWrapper'
         >
             {/* display either the user entries or the message to the user */}
             {usersWereFound ? ( 

@@ -39,7 +39,7 @@ const UserEntry = (props: UserEntryProps) => {
                 <img 
                     className='userEntryImg'
                     src={props.avatar_url} 
-                    alt={`${props.name}'s profile pic`}
+                    alt={`${props.name}'s profile picture`}
                 />   
                 <div className='userEntryTextContainer'> 
                     <div className='userEntryName'>
