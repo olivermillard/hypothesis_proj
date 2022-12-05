@@ -17,6 +17,9 @@ import { UserDataItem } from './UserEntries';
 interface UserEntryProps extends UserDataItem {
     /** A callback function which tells the parent which entry the user has selected */
     handleUserChoice: (entry: UserDataItem) => void;
+
+    /** The test id */
+    testId: string;
 }
 
 /* ******************************************************************************
@@ -27,7 +30,10 @@ interface UserEntryProps extends UserDataItem {
  ********************************************************************************/
 const UserEntry = (props: UserEntryProps) => {       
     return (
-        <div className='userEntryWrapper'>
+        <div 
+            className='userEntryWrapper'
+            data-testid={props.testId}
+        >
             <div 
                 className='userEntryInner'
                 onClick={()=> props.handleUserChoice({

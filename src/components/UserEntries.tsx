@@ -110,8 +110,12 @@ const UserEntries = (props: UserEntriesProps) => {
      * @returns the sorted data from the fetch
      */
     const fetchUsers = async (dataPath: string): Promise<UserDataItem[]> => {
-        const userData = await fetch(dataPath)
-            .then(res => res.json());     
+        const response = await fetch(dataPath);
+        const userData = await response.json()
+            .catch((err)=> {
+                console.log(err);
+                return [];
+            });    
         const sortedData = userData.sort((a: UserDataItem, b: UserDataItem) => a.name > b.name ? 1 : -1);
         
         return sortedData;
@@ -168,6 +172,7 @@ const UserEntries = (props: UserEntriesProps) => {
                                 username={entry.username}
                                 avatar_url={entry.avatar_url}
                                 handleUserChoice={() => props.setSelectedUser(entry)}
+                                testId={`userEntry_${idx}`}
                                 key={`${entry.username}_${idx}`}
                             />
                         );

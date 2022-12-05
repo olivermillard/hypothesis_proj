@@ -36,6 +36,7 @@ test('valid inputs', async () => {
     expect(textarea.textContent).toBe('oliver@gmail.com');
 });
 
+// test the debounce method 
 jest.useFakeTimers();
 describe('debounce', () => {
     let func: jest.Mock;
@@ -51,7 +52,6 @@ describe('debounce', () => {
             debouncedFunc();
         }
         
-        // Fast-forward time
         jest.runAllTimers();
 
         expect(func).toBeCalledTimes(1);
