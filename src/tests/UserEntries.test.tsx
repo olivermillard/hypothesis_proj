@@ -16,7 +16,7 @@ test('UserEntries: shows correct message when no users are found', () => {
     expect(elem.getByText(/no users found/i)).toBeInTheDocument();
 });
 
-test('UserEntries: shows correct message when loading data', () => {
+test('UserEntries: shows correct message when loading data', async () => {
     const nameQuery = '@';
     const setSelectedUser = jest.fn();
 
@@ -26,7 +26,6 @@ test('UserEntries: shows correct message when loading data', () => {
             setSelectedUser={setSelectedUser}
         />
     ); 
-   
+    
     expect(elem.getByText(/collecting user data/i)).toBeInTheDocument();
 });
-
